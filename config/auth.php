@@ -13,6 +13,9 @@ return [
     |
     */
 
+    // Статический код для авторизации api запросов
+    'auth_bearer_code' => env('AUTH_CODE', ''),
+
     'defaults' => [
         'guard' => env('AUTH_GUARD', 'web'),
         'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
