@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Queries\BusinessDirectionQuery;
+use Database\Factories\BusinessDirectionFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property Collection<BusinessDirection> $children
  * @property BusinessDirection $parent
  *
+ * @method static BusinessDirectionFactory factory($count = null, $state = [])
  * @method static BusinessDirectionQuery|BusinessDirection query()
  *
  * @mixin BusinessDirectionQuery
