@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             BusinessDirectionSeeder::class,
+            BuildingSeeder::class,
         ]);
     }
 }
