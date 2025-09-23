@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
     function run(): void
     {
         $this->call([
-
+            BusinessDirectionSeeder::class,
         ]);
     }
 }
