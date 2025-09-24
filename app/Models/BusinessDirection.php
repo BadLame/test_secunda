@@ -11,12 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * Направление деятельности компании
  *
  * @property string $id
  * @property string $title
+ * @property string $code Уникальный код каждого направления деятельности
  * @property string|null $parent_id
  * @property Carbon $updated_at
  * @property Carbon $created_at
@@ -37,6 +39,7 @@ class BusinessDirection extends Model
 
     protected $fillable = [
         'title',
+        'code',
         'parent_id',
     ];
 
@@ -64,6 +67,10 @@ class BusinessDirection extends Model
                     ->exists();
 
                 $bd->parent_id = $isParentOnMaxNestingLevel ? null : $bd->parent_id;
+            }
+
+            if (!$bd->code) {
+                $bd->code = Str::snake(Str::transliterate($bd->title));
             }
         });
     }
