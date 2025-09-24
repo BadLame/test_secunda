@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature;
+namespace Tests\Feature;
 
 use Illuminate\Support\Str;
 use Tests\TestCase;

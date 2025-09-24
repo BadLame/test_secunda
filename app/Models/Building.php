@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Queries\BuildingQuery;
+use Clickbar\Magellan\Data\Geometries\Point;
 use Database\Factories\BuildingFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -13,20 +15,32 @@ use Illuminate\Support\Carbon;
  *
  * @property int $id
  * @property string $address
- * @property float $lat
- * @property float $lng
+ * @property Point $geo
  * @property Carbon $updated_at
  * @property Carbon $created_at
  *
  * @method static BuildingFactory factory($count = null, $state = [])
+ * @method static BuildingQuery|Building query()
+ *
+ * @mixin BuildingQuery
  */
 class Building extends Model
 {
     use HasFactory, HasUuids;
 
+    protected $casts = [
+        'geo' => Point::class,
+    ];
+
     protected $fillable = [
         'address',
-        'lat',
-        'lng',
+        'geo',
     ];
+
+    // Misc
+
+    function newEloquentBuilder($query): BuildingQuery
+    {
+        return new BuildingQuery($query);
+    }
 }

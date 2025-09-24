@@ -16,8 +16,8 @@ class BuildingResource extends JsonResource
         return [
             'id' => $b->id,
             'address' => $b->address,
-            'lat' => $b->lat,
-            'lng' => $b->lng,
+            'lat' => $b->geo->getLatitude(),
+            'lng' => $b->geo->getLongitude(),
         ];
     }
 }
