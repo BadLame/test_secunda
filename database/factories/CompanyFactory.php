@@ -33,4 +33,11 @@ class CompanyFactory extends Factory
             'building_id' => Building::query()->inRandomOrder()->value('id'),
         ];
     }
+
+    function withBd(BusinessDirection $bd): static
+    {
+        return $this->afterCreating(
+            fn (Company $company) => $company->businessDirections()->save($bd)
+        );
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Queries\CompanyQuery;
 use Database\Factories\CompanyFactory;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -25,6 +26,9 @@ use Illuminate\Support\Carbon;
  * @property Collection<BusinessDirection> $businessDirections
  *
  * @method static CompanyFactory factory($count = null, $state = [])
+ * @method static CompanyQuery query()
+ *
+ * @mixin CompanyQuery
  */
 class Company extends Model
 {
@@ -51,5 +55,12 @@ class Company extends Model
     {
         return $this->belongsToMany(BusinessDirection::class, 'company_business_directions_pivot')
             ->withTimestamps();
+    }
+
+    // Misc
+
+    function newEloquentBuilder($query): CompanyQuery
+    {
+        return new CompanyQuery($query);
     }
 }

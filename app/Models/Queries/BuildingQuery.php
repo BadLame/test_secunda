@@ -15,7 +15,7 @@ class BuildingQuery extends Builder
     {
         return $this->where(
             fn (self $q) => $q->whereRaw(
-                'ST_Distance(geo::geography, ST_Point(?, ?)) <= ?',
+                'ST_Distance(buildings.geo::geography, ST_Point(?, ?)) <= ?',
                 [$lng, $lat, $radiusInKm * 1000]
             )
         );
@@ -25,8 +25,7 @@ class BuildingQuery extends Builder
     function aroundInRect(float $lat, float $lng, float $latDistanceKm, float $lngDistanceKm): static
     {
         [$latD, $lngD] = [$latDistanceKm * 1_000, $lngDistanceKm * 1_000];
-        $rectCoords = GeoHelper::calculateRectangleCorners($lat, $lng, $lngD, $latD);
-        [$n, $s, $w, $e] = [$rectCoords['n'], $rectCoords['s'], $rectCoords['w'], $rectCoords['e']];
+        ['n' => $n, 's' => $s, 'w' => $w, 'e' => $e] = GeoHelper::calculateRectangleEdges($lat, $lng, $lngD, $latD);
 
         return $this->where(
             fn (self $q) => $q

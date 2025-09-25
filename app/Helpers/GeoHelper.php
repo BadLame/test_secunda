@@ -15,7 +15,7 @@ class GeoHelper
      * @param float $heightMeters Высота в метрах
      * @return array{n: float, s: float, w: float, e: float} Координаты севера, юга, запада, востока
      */
-    static function calculateRectangleCorners(
+    static function calculateRectangleEdges(
         float $centerLat,
         float $centerLng,
         float $widthMeters,
@@ -31,6 +31,41 @@ class GeoHelper
             's' => $centerLat - $latDelta,
             'w' => $centerLng - $lngDelta,
             'e' => $centerLng + $lngDelta,
+        ];
+    }
+
+    /**
+     * @param $centerLat
+     * @param $centerLon
+     * @param $distanceKm
+     * @return array{lat: float, lng: float}
+     */
+    static function generateRandomPointAtDistance($centerLat, $centerLon, $distanceKm): array
+    {
+        $earthRadius = 6371;
+
+        // Случайный азимут (0-360 градусов)
+        $bearing = deg2rad(mt_rand(0, 360));
+
+        // Угловое расстояние в радианах
+        $angularDistance = $distanceKm / $earthRadius;
+
+        $centerLatRad = deg2rad($centerLat);
+        $centerLonRad = deg2rad($centerLon);
+
+        // Вычисляем новую точку
+        $newLat = asin(sin($centerLatRad) * cos($angularDistance) +
+            cos($centerLatRad) * sin($angularDistance) * cos($bearing));
+
+        $newLon = $centerLonRad + atan2(sin($bearing) * sin($angularDistance) * cos($centerLatRad),
+                cos($angularDistance) - sin($centerLatRad) * sin($newLat));
+
+        // Нормализуем долготу
+        $newLon = fmod(($newLon + 3 * M_PI), (2 * M_PI)) - M_PI;
+
+        return [
+            'lat' => rad2deg($newLat),
+            'lng' => rad2deg($newLon),
         ];
     }
 

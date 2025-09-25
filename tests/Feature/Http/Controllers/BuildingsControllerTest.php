@@ -36,13 +36,13 @@ class BuildingsControllerTest extends TestCase
         $point = ['lat' => fake()->latitude, 'lng' => fake()->longitude];
 
         $coordsWithin = collect(range(1, 5))
-            ->map(fn ($_) => $this->generateRandomPointAtDistance(
+            ->map(fn ($_) => GeoHelper::generateRandomPointAtDistance(
                 $point['lat'],
                 $point['lng'],
                 $radius - rand(1, 2))
             )
             ->toArray();
-        $coordsOutside = $this->generateRandomPointAtDistance(
+        $coordsOutside = GeoHelper::generateRandomPointAtDistance(
             $point['lat'],
             $point['lng'],
             $radius + rand(1, 2)
@@ -79,7 +79,7 @@ class BuildingsControllerTest extends TestCase
 
         [$lat, $lng] = [fake()->latitude, fake()->longitude];
         [$rectWidth, $rectHeight] = [rand(1, 10), rand(1, 10)];
-        ['n' => $n, 's' => $s, 'w' => $w, 'e' => $e] = GeoHelper::calculateRectangleCorners(
+        ['n' => $n, 's' => $s, 'w' => $w, 'e' => $e] = GeoHelper::calculateRectangleEdges(
             $lat, $lng, $rectWidth * 1000, $rectHeight * 1000
         );
         $randFloat = fn (float $i, float $j) => rand($i * 1_000, $j * 1_000) / 1_000;
@@ -117,42 +117,5 @@ class BuildingsControllerTest extends TestCase
         foreach ([$buildingOutsideX, $buildingOutsideY] as $buildingOutside) {
             $response->assertJsonMissing(['id' => $buildingOutside->id]);
         }
-    }
-
-    // Helpers
-
-    /**
-     * @param $centerLat
-     * @param $centerLon
-     * @param $distanceKm
-     * @return array{lat: float, lng: float}
-     */
-    protected function generateRandomPointAtDistance($centerLat, $centerLon, $distanceKm): array
-    {
-        $earthRadius = 6371;
-
-        // Случайный азимут (0-360 градусов)
-        $bearing = deg2rad(mt_rand(0, 360));
-
-        // Угловое расстояние в радианах
-        $angularDistance = $distanceKm / $earthRadius;
-
-        $centerLatRad = deg2rad($centerLat);
-        $centerLonRad = deg2rad($centerLon);
-
-        // Вычисляем новую точку
-        $newLat = asin(sin($centerLatRad) * cos($angularDistance) +
-            cos($centerLatRad) * sin($angularDistance) * cos($bearing));
-
-        $newLon = $centerLonRad + atan2(sin($bearing) * sin($angularDistance) * cos($centerLatRad),
-                cos($angularDistance) - sin($centerLatRad) * sin($newLat));
-
-        // Нормализуем долготу
-        $newLon = fmod(($newLon + 3 * M_PI), (2 * M_PI)) - M_PI;
-
-        return [
-            'lat' => rad2deg($newLat),
-            'lng' => rad2deg($newLon),
-        ];
     }
 }

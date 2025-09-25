@@ -15,6 +15,7 @@ class BusinessDirectionResource extends JsonResource
 
         return [
             'title' => $bd->title,
+            'code' => $bd->code,
             'parent' => $this->whenLoaded('parent', fn () => new static($bd->parent)),
             'children' => $this->whenLoaded(
                 'children',

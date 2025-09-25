@@ -12,7 +12,7 @@ class BusinessDirectionFactory extends Factory
     function definition(): array
     {
         return [
-            'title' => $this->faker->word(),
+            'title' => fake()->unique()->word(),
             'parent_id' => null,
         ];
     }

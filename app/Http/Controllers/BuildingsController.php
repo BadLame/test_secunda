@@ -6,11 +6,12 @@ use App\Http\Requests\Building\BuildingListFilterType;
 use App\Http\Requests\Building\BuildingsListRequest;
 use App\Http\Resources\Building\BuildingResource;
 use App\Models\Building;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class BuildingsController extends Controller
 {
     /** Здания в радиусе / прямоугольнике от географической точки */
-    function list(BuildingsListRequest $r)
+    function list(BuildingsListRequest $r): AnonymousResourceCollection
     {
         $buildings = match ($r->filterType) {
             BuildingListFilterType::RADIUS => Building::query()
