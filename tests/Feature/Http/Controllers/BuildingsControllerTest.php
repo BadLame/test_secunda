@@ -84,18 +84,28 @@ class BuildingsControllerTest extends TestCase
         );
         $randFloat = fn (float $i, float $j) => rand($i * 1_000, $j * 1_000) / 1_000;
 
-        $buildingsWithin = collect(range(1, 5))
-            ->map(
-                fn ($_) => Building::factory()
-                    ->withLatLng($randFloat($w, $e), $randFloat($s, $n))
-                    ->create()
-            );
-        $buildingOutsideY = Building::factory()
-            ->withLatLng($randFloat($w, $e), $n + $randFloat(0.1, 1))
+        $bsWithin = Building::factory(rand(5, 10))
+            ->withLatLng($randFloat($w, $e), $randFloat($s, $n))
             ->create();
-        $buildingOutsideX = Building::factory()
-            ->withLatLng($w + $randFloat(0.1, 1), $randFloat($s, $n))
-            ->create();
+
+        [$bsOutsideW, $bsOutsideE, $bsOutsideS, $bsOutsideN] = [
+            // За западом
+            Building::factory(rand(5, 10))
+                ->withLatLng($w - $randFloat(0.1, 1), $lat)
+                ->create(),
+            // За востоком
+            Building::factory(rand(5, 10))
+                ->withLatLng($e + $randFloat(0.1, 1), $lat)
+                ->create(),
+            // За югом
+            Building::factory(rand(5, 10))
+                ->withLatLng($lng, $s - $randFloat(0.1, 1))
+                ->create(),
+            // За севером
+            Building::factory(rand(5, 10))
+                ->withLatLng($lng, $n + $randFloat(0.1, 1))
+                ->create(),
+        ];
 
         // Запрос
 
@@ -111,10 +121,12 @@ class BuildingsControllerTest extends TestCase
 
         // Сверка результатов
 
-        foreach ($buildingsWithin as $buildingWithin) {
+        foreach ($bsWithin as $buildingWithin) {
             $response->assertJsonFragment(['id' => $buildingWithin->id]);
         }
-        foreach ([$buildingOutsideX, $buildingOutsideY] as $buildingOutside) {
+
+        $bsOutside = $bsOutsideE->merge($bsOutsideW)->merge($bsOutsideS)->merge($bsOutsideN);
+        foreach ($bsOutside as $buildingOutside) {
             $response->assertJsonMissing(['id' => $buildingOutside->id]);
         }
     }

@@ -19,12 +19,12 @@ class BuildingFactory extends Factory
 
         return [
             'address' => fake()->address(),
-            'geo' => Point::make($lng, $lat),
+            'geo' => Point::makeGeodetic($lat, $lng),
         ];
     }
 
     function withLatLng(float $lng, float $lat): static
     {
-        return $this->state(['geo' => Point::make($lng, $lat)]);
+        return $this->state(['geo' => Point::makeGeodetic($lat, $lng)]);
     }
 }

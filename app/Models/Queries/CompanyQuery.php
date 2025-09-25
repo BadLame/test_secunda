@@ -11,11 +11,13 @@ use Illuminate\Support\Str;
 /** @mixin Company */
 class CompanyQuery extends Builder
 {
+    /** Вызывает with с отношениями для подробной информации */
     function withPublicInfo(): static
     {
         return $this->with(['building', 'businessDirections' => ['parent']]);
     }
 
+    /** Поиск по части названия компании */
     function byName(string $name): static
     {
         return $this->where(
@@ -23,6 +25,7 @@ class CompanyQuery extends Builder
         );
     }
 
+    /** Вокруг переданной точки */
     function aroundThePoint(float $lat, float $lng, float $radiusInKm): static
     {
         return $this->whereHas(
@@ -31,6 +34,16 @@ class CompanyQuery extends Builder
         );
     }
 
+    /** В прямоугольнике вокруг переданной точки */
+    function aroundInRect(float $lat, float $lng, float $latDistanceKm, float $lngDistanceKm): static
+    {
+        return $this->whereHas(
+            'building',
+            fn (BuildingQuery $q) => $q->aroundInRect($lat, $lng, $latDistanceKm, $lngDistanceKm)
+        );
+    }
+
+    /** Принадлежащие к зданию */
     function byBuilding(Building|string $building): static
     {
         $building = is_object($building) ? $building->id : $building;
@@ -41,6 +54,7 @@ class CompanyQuery extends Builder
         );
     }
 
+    /** По направлению деятельности (включая дочерние направления) */
     function byBusinessDirectionAndChildren(BusinessDirection|string $bdIdOrCode): static
     {
         $bd = is_object($bdIdOrCode) ? $bdIdOrCode->id : $bdIdOrCode;
@@ -67,6 +81,7 @@ class CompanyQuery extends Builder
         );
     }
 
+    /** По направлению деятельности (исключая дочерние направления) */
     function byExactBusinessDirection(BusinessDirection|string $bdIdOrCode): static
     {
         $bd = is_object($bdIdOrCode) ? $bdIdOrCode->id : $bdIdOrCode;

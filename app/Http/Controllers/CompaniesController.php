@@ -37,8 +37,9 @@ class CompaniesController extends Controller
             FilterType::CONCRETE_BUSINESS_DIRECTION => $q->byExactBusinessDirection($r->bd_code),
             FilterType::BUSINESS_DIRECTION => $q->byBusinessDirectionAndChildren($r->bd_code),
             FilterType::GEO_RADIUS => $q->aroundThePoint($r->point_lat, $r->point_lng, $r->radius),
-            // todo
-            FilterType::GEO_RECT => throw new \RuntimeException('To be implemented'),
+            FilterType::GEO_RECT => $q->aroundInRect(
+                $r->point_lat, $r->point_lng, $r->distance_for_lat, $r->distance_for_lng
+            ),
         };
 
         return CompanyResource::collection($q->get());

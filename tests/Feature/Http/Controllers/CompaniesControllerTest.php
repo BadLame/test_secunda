@@ -166,4 +166,48 @@ class CompaniesControllerTest extends TestCase
             $response->assertJsonMissing(['id' => $companyOutside->id]);
         }
     }
+
+    function testListFiltersByRect(): void
+    {
+        [$lat, $lng] = [fake()->latitude, fake()->longitude];
+        [$rectWidth, $rectHeight] = [rand(1, 100), rand(1, 100)];
+        ['n' => $n, 's' => $s, 'w' => $w, 'e' => $e] = GeoHelper::calculateRectangleEdges(
+            $lat, $lng, $rectWidth * 1000, $rectHeight * 1000
+        );
+
+        $randFloat = fn (float $i, float $j) => rand($i * 1_000, $j * 1_000) / 1_000;
+        $bf = function (float $left, float $right, float $bottom, float $top) use ($randFloat) {
+            return Building::factory()
+                ->withLatLng($randFloat($left, $right), $randFloat($bottom, $top));
+        };
+
+        [$companiesWithin, $companiesOutsideX, $companiesOutsideY] = [
+            Company::factory(rand(5, 10))->create([
+                'building_id' => $bf($w, $e, $s, $n),
+            ]),
+            Company::factory(rand(5, 10))->create([
+                'building_id' => $bf($w - $randFloat(0.1, 1), $w, $s, $n),
+            ]),
+            Company::factory(rand(5, 10))->create([
+                'building_id' => $bf($w, $e, $n, $n + $randFloat(0.1, 1)),
+            ]),
+        ];
+
+        $response = $this->authorized()
+            ->getJson(route('api.company.list', [
+                'filter_type' => CompanyListFilterType::GEO_RECT->value,
+                'point_lat' => $lat,
+                'point_lng' => $lng,
+                'distance_for_lat' => $rectHeight,
+                'distance_for_lng' => $rectWidth,
+            ]))
+            ->assertSuccessful();
+
+        foreach ($companiesWithin as $companyWithin) {
+            $response->assertJsonFragment(['id' => $companyWithin->id]);
+        }
+        foreach ($companiesOutsideX->merge($companiesOutsideY) as $companyOutside) {
+            $response->assertJsonMissing(['id' => $companyOutside->id]);
+        }
+    }
 }
