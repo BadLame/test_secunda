@@ -133,7 +133,7 @@ class CompaniesControllerTest extends TestCase
     function testListFiltersByRadius(): void
     {
         $radius = rand(5, 10);
-        [$lat, $lng] = [fake()->latitude, fake()->longitude];
+        [$lat, $lng] = [fake()->latitude(-80, 80), fake()->longitude(-170, 170)];
         $randLngLatAtDistanceFn = function (float $lat, float $lng, float $distanceKm) {
             $point = GeoHelper::generateRandomPointAtDistance($lat, $lng, $distanceKm);
             return [$point['lng'], $point['lat']];
@@ -145,7 +145,7 @@ class CompaniesControllerTest extends TestCase
         ]);
         $companiesOutside = Company::factory(rand(5, 10))->create([
             'building_id' => Building::factory()
-                ->withLatLng(...$randLngLatAtDistanceFn($lat, $lng, $radius + 0.1)),
+                ->withLatLng(...$randLngLatAtDistanceFn($lat, $lng, $radius + (rand(1, 10) / 10))),
         ]);
 
         $response = $this->authorized()

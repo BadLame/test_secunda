@@ -18,6 +18,7 @@ class CompanyResource extends JsonResource
         return [
             'id' => $c->id,
             'name' => $c->name,
+            /** @var array<string> */
             'phones' => $c->phones,
             'building' => $this->whenLoaded(
                 'building',
